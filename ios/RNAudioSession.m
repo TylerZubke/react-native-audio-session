@@ -7,9 +7,13 @@
 
 #import "RNAudioSession.h"
 #import <React/RCTLog.h>
+#import <React/RCTBridge.h>
+#import <React/RCTEventDispatcher.h>
 #import <AVFoundation/AVFoundation.h>
 
 @implementation RNAudioSession
+
+@synthesize bridge = _bridge;
 
 static NSDictionary *_categories;
 static NSDictionary *_options;
@@ -49,7 +53,7 @@ RCT_EXPORT_MODULE();
 
 RCT_EXPORT_METHOD(init:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
   
-  NSLog(@"[RNAUdioSession] Initialize");
+  NSLog(@"[RNAUdioSession] Initialize (2)");
   //check audio routes
   [AVAudioSession sharedInstance];
   // Register for Route Change notifications
@@ -65,7 +69,8 @@ RCT_EXPORT_METHOD(init:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectB
   }
   @catch (NSException *exception) {
 	  NSLog(@"%@", exception.reason);
-	  reject(@"[RNAudioSession] Failed to initialize, reason: %@", exception.reason);
+      NSString* message = [NSString stringWithFormat:@"[RNAudioSession] Failed to initialize, reason: %@", exception.reason];
+      reject(@"rnaudiosession_fail_initialize", message, exception);
   }
   
 
@@ -172,22 +177,23 @@ RCT_EXPORT_METHOD(setCategoryAndMode:(NSString *)category mode:(NSString *)mode 
 }
 
 -(void) handleInterruption:(NSNotification*)notification{
-	NSLog(@"An interruption occurred");
+	NSLog(@"[RNAudioSession] An interruption occurred");
 	NSString* interruptTypeStr = @"";
-	NSNumber reason = [[[notification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey] integerValue];
+	NSInteger reason = [[[notification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey] integerValue];
+//    NSString* interruptTypeAsStr = [NSString stringWithFormat: @"%ld",(long)reason];
 	switch (reason) {
 		case AVAudioSessionInterruptionTypeBegan:
 		interruptTypeStr = @"Audo Session has been interrupted.";
 		break;
 		case AVAudioSessionInterruptionTypeEnded:
-		interruptTypeStr = @"Audio Session interruption has ended."
+            interruptTypeStr = @"Audio Session interruption has ended.";
 		break;
 	}
-	[self.bridge.eventDispatcher sendAppEventWithName:@"AudioSessionInterruption" body:@{@"typeStr": interruptTypeStr, @"type": reason}];
+	[self.bridge.eventDispatcher sendAppEventWithName:@"AudioSessionInterruption" body:@{@"typeStr": interruptTypeStr, @"type": [NSNumber numberWithInteger:reason]}];
 }
 
 -(void) handleRouteChange:(NSNotification*)notification{
-  NSLog(@"Audio route changed");
+  NSLog(@"[RNAudioSession] Audio route changed");
   AVAudioSession *session = [ AVAudioSession sharedInstance ];
   NSString* seccReason = @"";
   NSInteger  reason = [[[notification userInfo] objectForKey:AVAudioSessionRouteChangeReasonKey] integerValue];
@@ -222,7 +228,7 @@ RCT_EXPORT_METHOD(setCategoryAndMode:(NSString *)category mode:(NSString *)mode 
   NSString *inputStr = input.portType ? input.portType : @"";
   NSString *outputStr = output.portType ? output.portType : @"";
   
-  lastOutputStr = outputStr;
+//  lastOutputStr = outputStr;
     
   NSLog(@"Change reason %@", seccReason);
   NSLog(@"input %@", inputStr);
@@ -242,7 +248,7 @@ RCT_EXPORT_METHOD(setCategoryAndMode:(NSString *)category mode:(NSString *)mode 
 //    }
 //  }
 
-  [self.bridge.eventDispatcher sendAppEventWithName:@"AudioSessionRouteChanged" body:@{@"input": inputStr, @"output": outputStr, @"reason": seccReason}];
+    [self.bridge.eventDispatcher sendAppEventWithName:@"AudioSessionRouteChanged" body:@{@"input": inputStr, @"output": outputStr, @"reason": seccReason, @"category":[AVAudioSession sharedInstance].category, @"mode":[AVAudioSession sharedInstance].mode,@"options":[NSNumber numberWithInteger:[AVAudioSession sharedInstance].categoryOptions]}];
 }
 
 
