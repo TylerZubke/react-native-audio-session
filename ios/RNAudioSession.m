@@ -49,7 +49,7 @@ RCT_EXPORT_MODULE();
 
 RCT_EXPORT_METHOD(init:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
   
-  NSLog(@"Set up audio session observer");
+  NSLog(@"[RNAUdioSession] Initialize");
   //check audio routes
   [AVAudioSession sharedInstance];
   // Register for Route Change notifications
@@ -65,11 +65,11 @@ RCT_EXPORT_METHOD(init:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectB
   }
   @catch (NSException *exception) {
 	  NSLog(@"%@", exception.reason);
-	  reject(exception.reason);
+	  reject(@"[RNAudioSession] Failed to initialize, reason: %@", exception.reason);
   }
   
 
-  NSLog(@"Initialized RNAudioSession");
+  NSLog(@"[RNAudioSession] Initialized");
   
   resolve(@"Done!");
 }
@@ -242,7 +242,7 @@ RCT_EXPORT_METHOD(setCategoryAndMode:(NSString *)category mode:(NSString *)mode 
 //    }
 //  }
 
-  [self.bridge.eventDispatcher sendAppEventWithName:@"AudioRouteChanged" body:@{@"input": inputStr, @"output": outputStr, @"reason": seccReason}];
+  [self.bridge.eventDispatcher sendAppEventWithName:@"AudioSessionRouteChanged" body:@{@"input": inputStr, @"output": outputStr, @"reason": seccReason}];
 }
 
 
