@@ -23,7 +23,7 @@
   "author": "Johan Kasperi <johan@kasperi.se>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/BonnierNews/react-native-audio-session/issues"
+    "url": "https://github.com/AmbiFi/react-native-audio-session/issues"
   },
-  "homepage": "https://github.com/BonnierNews/react-native-audio-session#readme"
+  "homepage": "https://github.com/AmbiFi/react-native-audio-session#readme"
 }

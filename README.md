@@ -15,7 +15,7 @@ and then
 ## Usage
 
 ```javascript
-import AudioSession, {AudioCategories, AudioOptions, AudioModes} from 'react-native-audio-session'
+import AudioSession, {AudioCategories, AudioOptions, AudioModes} from '@ambifi/react-native-audio-session'
 
 // Set AVAudioSession active
 AudioSession.setActive(true)

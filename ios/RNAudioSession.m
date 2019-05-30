@@ -53,14 +53,21 @@ RCT_EXPORT_METHOD(init:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectB
   //check audio routes
   [AVAudioSession sharedInstance];
   // Register for Route Change notifications
-  [[NSNotificationCenter defaultCenter] addObserver: self
-                                           selector: @selector(handleRouteChange:)
-                                               name: AVAudioSessionRouteChangeNotification
-                                             object: nil];
-	  [[NSNotificationCenter defaultCenter] addObserver: self
-                                           selector: @selector(handleInterruption:)
-                                               name: AVAudioSessionInterruptionNotification
-                                             object: nil];
+  @try {
+	[[NSNotificationCenter defaultCenter] addObserver: self
+                                        selector: @selector(handleRouteChange:)
+                                        name: AVAudioSessionRouteChangeNotification
+                                        object: nil];
+	[[NSNotificationCenter defaultCenter] addObserver: self
+										selector: @selector(handleInterruption:)
+										name: AVAudioSessionInterruptionNotification
+										object: nil];
+  }
+  @catch (NSException *exception) {
+	  NSLog(@"%@", exception.reason);
+	  reject(exception.reason);
+  }
+  
 
   NSLog(@"Initialized RNAudioSession");
   
