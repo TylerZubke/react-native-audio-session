@@ -84,9 +84,12 @@ RCT_EXPORT_METHOD(category:(RCTResponseSenderBlock)callback)
     callback(@[[AVAudioSession sharedInstance].category]);
 }
 
-RCT_EXPORT_METHOD(options:(RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(options:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    callback(@[[NSNumber numberWithInteger:[AVAudioSession sharedInstance].categoryOptions]]);
+    NSUInteger options = [AVAudioSession sharedInstance].categoryOptions;
+    NSLog(@"Current audio session options bitmask %lu", options);
+    NSArray *optionsArray = [self convertOptionsBitmaskToArray: options];
+    resolve(optionsArray);
 }
 
 RCT_EXPORT_METHOD(mode:(RCTResponseSenderBlock)callback)
@@ -267,9 +270,24 @@ RCT_EXPORT_METHOD(setCategoryAndMode:(NSString *)category mode:(NSString *)mode 
         }
     }
     
-    NSLog(@"Options bitmask: %lu", bitmask);
-    //NSLog(@"Test options bitmask %lu", AVAudioSessionCategoryOptionAllowBluetooth | AVAudioSessionCategoryOptionDefaultToSpeaker | AVAudioSessionCategoryOptionAllowBluetoothA2DP);
+    NSLog(@"Audio session options array to bitmask: %lu", bitmask);
+    //NSLog(@"Test audio session options array to bitmask %lu", AVAudioSessionCategoryOptionAllowBluetooth | AVAudioSessionCategoryOptionDefaultToSpeaker | AVAudioSessionCategoryOptionAllowBluetoothA2DP);
     return bitmask;
+}
+
+-(NSArray *) convertOptionsBitmaskToArray:(NSUInteger) options  {
+    
+    NSMutableArray *array = [NSMutableArray array];
+    
+    for(id key in _options) {
+        NSNumber *option = [_options objectForKey:key];
+        NSUInteger optionInt = [option unsignedIntegerValue];
+    
+        if((optionInt & options) == optionInt) {
+            [array addObject: key];
+        }
+    }
+    return array;
 }
 
 @end
