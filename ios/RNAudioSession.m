@@ -105,13 +105,14 @@ RCT_EXPORT_METHOD(setActive:(BOOL)active resolver:(RCTPromiseResolveBlock)resolv
     }
 }
 
-RCT_EXPORT_METHOD(setCategory:(NSString *)category options:(NSString *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(setCategory:(NSString *)category options:(NSArray *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     NSString* cat = _categories[category];
+    
     if (cat != nil && [[AVAudioSession sharedInstance].availableCategories containsObject:cat]) {
         NSError *error = nil;
-        if (_options[options] != nil) {
-            [[AVAudioSession sharedInstance] setCategory:cat withOptions:_options[options] error:&error];
+        if (options != nil) {
+            [[AVAudioSession sharedInstance] setCategory:cat withOptions: [self convertOptionsToBitmask: options] error:&error];
         } else {
             [[AVAudioSession sharedInstance] setCategory:cat error:&error];
         }
@@ -153,13 +154,15 @@ RCT_EXPORT_METHOD(setMode:(NSString *)mode resolver:(RCTPromiseResolveBlock)reso
     }
 }
 
-RCT_EXPORT_METHOD(setCategoryAndMode:(NSString *)category mode:(NSString *)mode options:(NSString *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(setCategoryAndMode:(NSString *)category mode:(NSString *)mode options:(NSArray *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     NSString* cat = _categories[category];
     NSString* mod = _modes[mode];
-    if (cat != nil && mod != nil && _options[options] != nil && [[AVAudioSession sharedInstance].availableCategories containsObject:cat] && [[AVAudioSession sharedInstance].availableModes containsObject:mod]) {
+    if (cat != nil && mod != nil && options != nil && [[AVAudioSession sharedInstance].availableCategories containsObject:cat] && [[AVAudioSession sharedInstance].availableModes containsObject:mod]) {
         NSError *error = nil;
-        [[AVAudioSession sharedInstance] setCategory:cat mode:mod options:_options[options] error:&error];
+        NSUInteger optionsArg = [self convertOptionsToBitmask: options];
+        [[AVAudioSession sharedInstance] setCategory:cat mode:mod options: optionsArg error:&error];
+        
         if (error) {
             reject(@"setCategoryAndMode", @"Could not set category and mode.", error);
         } else {
@@ -251,5 +254,22 @@ RCT_EXPORT_METHOD(setCategoryAndMode:(NSString *)category mode:(NSString *)mode 
     [self.bridge.eventDispatcher sendAppEventWithName:@"AudioSessionRouteChanged" body:@{@"input": inputStr, @"output": outputStr, @"reason": seccReason, @"category":[AVAudioSession sharedInstance].category, @"mode":[AVAudioSession sharedInstance].mode,@"options":[NSNumber numberWithInteger:[AVAudioSession sharedInstance].categoryOptions]}];
 }
 
+-(NSUInteger) convertOptionsToBitmask:(NSArray *) array  {
+    
+    NSUInteger bitmask = 0x0;
+
+    for (int i = 0; i < [array count]; i++)
+    {
+        NSString *key = array[i];
+        NSNumber *value = [_options objectForKey:key];
+        if(value != nil) {
+            bitmask = bitmask | [value unsignedIntegerValue];
+        }
+    }
+    
+    NSLog(@"Options bitmask: %lu", bitmask);
+    //NSLog(@"Test options bitmask %lu", AVAudioSessionCategoryOptionAllowBluetooth | AVAudioSessionCategoryOptionDefaultToSpeaker | AVAudioSessionCategoryOptionAllowBluetoothA2DP);
+    return bitmask;
+}
 
 @end
