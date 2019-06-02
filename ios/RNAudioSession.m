@@ -194,6 +194,34 @@ RCT_EXPORT_METHOD(secondaryAudioShouldBeSilencedHint:(RCTPromiseResolveBlock)res
     resolve(@(secondaryAudioShouldBeSilencedHint));
 }
 
+RCT_EXPORT_METHOD(currentRoute:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    AVAudioSessionRouteDescription *currentRoute = [AVAudioSession sharedInstance].currentRoute;
+    
+    NSMutableArray *inputs = [NSMutableArray array];
+    
+    for (int i = 0; i < [currentRoute.inputs count]; i++) {
+        AVAudioSessionPortDescription *input = currentRoute.inputs[i];
+        NSDictionary *portDict = [self convertAVAudioSessionPortDescriptionToDictionary: input];
+        [inputs addObject: portDict];
+    }
+    
+    NSMutableArray *outputs = [NSMutableArray array];
+    
+    for (int i = 0; i < [currentRoute.outputs count]; i++) {
+        AVAudioSessionPortDescription *output = currentRoute.outputs[i];
+        NSDictionary *portDict = [self convertAVAudioSessionPortDescriptionToDictionary: output];
+        [outputs addObject: portDict];
+    }
+    
+    NSDictionary *currentRouteDict = @{
+                                       @"inputs": inputs,
+                                       @"outputs": outputs
+                                       };
+    
+    resolve(currentRouteDict);
+}
+
 RCT_EXPORT_METHOD(recordPermission:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     AVAudioSessionRecordPermission recordPermission = [AVAudioSession sharedInstance].recordPermission;
@@ -220,19 +248,11 @@ RCT_EXPORT_METHOD(availableInputs:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 {
     NSArray *availableInputs = [AVAudioSession sharedInstance].availableInputs;
     
-    NSLog(@"Inputs length %lu", [availableInputs count]);
-    
     NSMutableArray *array = [NSMutableArray array];
     
     for (int i = 0; i < [availableInputs count]; i++) {
         AVAudioSessionPortDescription *input = availableInputs[i];
-    
-        NSDictionary *portDict = @{
-            @"portName": input.portName,
-            @"portType": input.portType,
-            @"uid": input.UID
-        };
-        
+        NSDictionary *portDict = [self convertAVAudioSessionPortDescriptionToDictionary: input];
         [array addObject: portDict];
     }
     
@@ -252,7 +272,7 @@ RCT_EXPORT_METHOD(inputDataSource:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
         };
         resolve(inputDataSourceDict);
     } else {
-        resolve(@{});
+        resolve(nil);
     }
 }
 
@@ -362,6 +382,16 @@ RCT_EXPORT_METHOD(inputDataSource:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
         }
     }
     return array;
+}
+
+-(NSDictionary *) convertAVAudioSessionPortDescriptionToDictionary:(AVAudioSessionPortDescription *) port {
+    
+    NSDictionary *portDict = @{
+                               @"portName": port.portName,
+                               @"portType": port.portType,
+                               @"uid": port.UID
+                               };
+    return portDict;
 }
 
 @end

@@ -118,6 +118,19 @@ const create = () => {
 		}
 	}
 
+	const currentRoute = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.currentRoute().then((event) => {
+					resolve(event)
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
 
 	const otherAudioPlaying = () => {
 		if (IS_IOS) {
@@ -214,6 +227,7 @@ const create = () => {
 		setCategory,
 		setMode,
 		setCategoryAndMode,
+		currentRoute,
 		otherAudioPlaying,
 		secondaryAudioShouldBeSilencedHint,
 		recordPermission,
