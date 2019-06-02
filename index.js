@@ -161,7 +161,6 @@ const create = () => {
 		}
 	}
 
-
 	const inputAvailable = () => {
 		if (IS_IOS) {
 			return new Promise((resolve, reject) => {
@@ -176,6 +175,36 @@ const create = () => {
 		}
 	}
 
+
+	const availableInputs = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.availableInputs().then((event) => {
+					resolve(event)
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const inputDataSource = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.inputDataSource().then((event) => {
+					resolve(event)
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+
 	return {
 		init,
 		currentCategory,
@@ -188,7 +217,9 @@ const create = () => {
 		otherAudioPlaying,
 		secondaryAudioShouldBeSilencedHint,
 		recordPermission,
-		inputAvailable
+		inputAvailable,
+		availableInputs,
+		inputDataSource
 	}
 }
 

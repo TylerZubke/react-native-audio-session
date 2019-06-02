@@ -216,6 +216,46 @@ RCT_EXPORT_METHOD(inputAvailable:(RCTPromiseResolveBlock)resolve rejecter:(RCTPr
     resolve(@(inputAvailable));
 }
 
+RCT_EXPORT_METHOD(availableInputs:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSArray *availableInputs = [AVAudioSession sharedInstance].availableInputs;
+    
+    NSLog(@"Inputs length %lu", [availableInputs count]);
+    
+    NSMutableArray *array = [NSMutableArray array];
+    
+    for (int i = 0; i < [availableInputs count]; i++) {
+        AVAudioSessionPortDescription *input = availableInputs[i];
+    
+        NSDictionary *portDict = @{
+            @"portName": input.portName,
+            @"portType": input.portType,
+            @"uid": input.UID
+        };
+        
+        [array addObject: portDict];
+    }
+    
+    resolve(array);
+}
+
+RCT_EXPORT_METHOD(inputDataSource:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    AVAudioSessionDataSourceDescription *inputDataSource = [AVAudioSession sharedInstance].inputDataSource;
+    
+    if(inputDataSource != nil) {
+        NSDictionary *inputDataSourceDict = @{
+            @"dataSourceID": inputDataSource.dataSourceID,
+            @"dataSourceName": inputDataSource.dataSourceName
+           // @"location": inputDataSource.location,
+           // @"orientation": inputDataSource.orientation
+        };
+        resolve(inputDataSourceDict);
+    } else {
+        resolve(@{});
+    }
+}
+
 -(void) handleInterruption:(NSNotification*)notification{
     NSLog(@"[RNAudioSession] An interruption occurred");
     NSString* interruptTypeStr = @"";
