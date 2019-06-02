@@ -118,6 +118,64 @@ const create = () => {
 		}
 	}
 
+
+	const otherAudioPlaying = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.otherAudioPlaying().then((event) => {
+					resolve(event)
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const secondaryAudioShouldBeSilencedHint = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.secondaryAudioShouldBeSilencedHint().then((event) => {
+					resolve(event)
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const recordPermission = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.recordPermission().then((event) => {
+					resolve(event)
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+
+	const inputAvailable = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.inputAvailable().then((event) => {
+					resolve(event)
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
 	return {
 		init,
 		currentCategory,
@@ -126,7 +184,11 @@ const create = () => {
 		setActive,
 		setCategory,
 		setMode,
-		setCategoryAndMode
+		setCategoryAndMode,
+		otherAudioPlaying,
+		secondaryAudioShouldBeSilencedHint,
+		recordPermission,
+		inputAvailable
 	}
 }
 

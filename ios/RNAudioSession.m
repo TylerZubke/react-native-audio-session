@@ -21,62 +21,62 @@ static NSDictionary *_modes;
 
 + (void)initialize {
     _categories = @{
-        @"Ambient": AVAudioSessionCategoryAmbient,
-        @"SoloAmbient": AVAudioSessionCategorySoloAmbient,
-        @"Playback": AVAudioSessionCategoryPlayback,
-        @"Record": AVAudioSessionCategoryRecord,
-        @"PlayAndRecord": AVAudioSessionCategoryPlayAndRecord,
-        @"MultiRoute": AVAudioSessionCategoryMultiRoute
-   };
+                    @"Ambient": AVAudioSessionCategoryAmbient,
+                    @"SoloAmbient": AVAudioSessionCategorySoloAmbient,
+                    @"Playback": AVAudioSessionCategoryPlayback,
+                    @"Record": AVAudioSessionCategoryRecord,
+                    @"PlayAndRecord": AVAudioSessionCategoryPlayAndRecord,
+                    @"MultiRoute": AVAudioSessionCategoryMultiRoute
+                    };
     _options = @{
-        @"MixWithOthers": @(AVAudioSessionCategoryOptionMixWithOthers),
-        @"DuckOthers": @(AVAudioSessionCategoryOptionDuckOthers),
-        @"InterruptSpokenAudioAndMixWithOthers": @(AVAudioSessionCategoryOptionInterruptSpokenAudioAndMixWithOthers),
-        @"AllowBluetooth": @(AVAudioSessionCategoryOptionAllowBluetooth),
-        @"AllowBluetoothA2DP": @(AVAudioSessionCategoryOptionAllowBluetoothA2DP),
-        @"AllowAirPlay": @(AVAudioSessionCategoryOptionAllowAirPlay),
-        @"DefaultToSpeaker": @(AVAudioSessionCategoryOptionDefaultToSpeaker)
-    };
+                 @"MixWithOthers": @(AVAudioSessionCategoryOptionMixWithOthers),
+                 @"DuckOthers": @(AVAudioSessionCategoryOptionDuckOthers),
+                 @"InterruptSpokenAudioAndMixWithOthers": @(AVAudioSessionCategoryOptionInterruptSpokenAudioAndMixWithOthers),
+                 @"AllowBluetooth": @(AVAudioSessionCategoryOptionAllowBluetooth),
+                 @"AllowBluetoothA2DP": @(AVAudioSessionCategoryOptionAllowBluetoothA2DP),
+                 @"AllowAirPlay": @(AVAudioSessionCategoryOptionAllowAirPlay),
+                 @"DefaultToSpeaker": @(AVAudioSessionCategoryOptionDefaultToSpeaker)
+                 };
     _modes = @{
-        @"Default": AVAudioSessionModeDefault,
-        @"VoiceChat": AVAudioSessionModeVoiceChat,
-        @"VideoChat": AVAudioSessionModeVideoChat,
-        @"GameChat": AVAudioSessionModeGameChat,
-        @"VideoRecording": AVAudioSessionModeVideoRecording,
-        @"Measurement": AVAudioSessionModeMeasurement,
-        @"MoviePlayback": AVAudioSessionModeMoviePlayback,
-        @"SpokenAudio": AVAudioSessionModeSpokenAudio
-    };
+               @"Default": AVAudioSessionModeDefault,
+               @"VoiceChat": AVAudioSessionModeVoiceChat,
+               @"VideoChat": AVAudioSessionModeVideoChat,
+               @"GameChat": AVAudioSessionModeGameChat,
+               @"VideoRecording": AVAudioSessionModeVideoRecording,
+               @"Measurement": AVAudioSessionModeMeasurement,
+               @"MoviePlayback": AVAudioSessionModeMoviePlayback,
+               @"SpokenAudio": AVAudioSessionModeSpokenAudio
+               };
 }
 
 RCT_EXPORT_MODULE();
 
 RCT_EXPORT_METHOD(init:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject) {
-  
-  NSLog(@"[RNAUdioSession] Initialize (2)");
-  //check audio routes
-  [AVAudioSession sharedInstance];
-  // Register for Route Change notifications
-  @try {
-	[[NSNotificationCenter defaultCenter] addObserver: self
-                                        selector: @selector(handleRouteChange:)
-                                        name: AVAudioSessionRouteChangeNotification
-                                        object: nil];
-	[[NSNotificationCenter defaultCenter] addObserver: self
-										selector: @selector(handleInterruption:)
-										name: AVAudioSessionInterruptionNotification
-										object: nil];
-  }
-  @catch (NSException *exception) {
-	  NSLog(@"%@", exception.reason);
-      NSString* message = [NSString stringWithFormat:@"[RNAudioSession] Failed to initialize, reason: %@", exception.reason];
-      reject(@"rnaudiosession_fail_initialize", message, exception);
-  }
-  
-
-  NSLog(@"[RNAudioSession] Initialized");
-  
-  resolve(@"Done!");
+    
+    NSLog(@"[RNAUdioSession] Initialize (2)");
+    //check audio routes
+    [AVAudioSession sharedInstance];
+    // Register for Route Change notifications
+    @try {
+        [[NSNotificationCenter defaultCenter] addObserver: self
+                                                 selector: @selector(handleRouteChange:)
+                                                     name: AVAudioSessionRouteChangeNotification
+                                                   object: nil];
+        [[NSNotificationCenter defaultCenter] addObserver: self
+                                                 selector: @selector(handleInterruption:)
+                                                     name: AVAudioSessionInterruptionNotification
+                                                   object: nil];
+    }
+    @catch (NSException *exception) {
+        NSLog(@"%@", exception.reason);
+        NSString* message = [NSString stringWithFormat:@"[RNAudioSession] Failed to initialize, reason: %@", exception.reason];
+        reject(@"rnaudiosession_fail_initialize", message, exception);
+    }
+    
+    
+    NSLog(@"[RNAudioSession] Initialized");
+    
+    resolve(@"Done!");
 }
 
 RCT_EXPORT_METHOD(category:(RCTResponseSenderBlock)callback)
@@ -126,10 +126,10 @@ RCT_EXPORT_METHOD(setCategory:(NSString *)category options:(NSArray *)options re
         }
     } else {
         NSDictionary *userInfo = @{
-            NSLocalizedDescriptionKey: @"Could not set AVAudioSession category.",
-            NSLocalizedFailureReasonErrorKey: @"The given category is not supported on this device.",
-            NSLocalizedRecoverySuggestionErrorKey: @"Try another category."
-        };
+                                   NSLocalizedDescriptionKey: @"Could not set AVAudioSession category.",
+                                   NSLocalizedFailureReasonErrorKey: @"The given category is not supported on this device.",
+                                   NSLocalizedRecoverySuggestionErrorKey: @"Try another category."
+                                   };
         NSError *error = [NSError errorWithDomain:@"RNAudioSession" code:-1 userInfo:userInfo];
         reject(@"setCategory", @"Could not set category.", error);
     }
@@ -182,85 +182,119 @@ RCT_EXPORT_METHOD(setCategoryAndMode:(NSString *)category mode:(NSString *)mode 
     }
 }
 
+RCT_EXPORT_METHOD(otherAudioPlaying:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    BOOL otherAudioPlaying = [AVAudioSession sharedInstance].otherAudioPlaying;
+    resolve(@(otherAudioPlaying));
+}
+
+RCT_EXPORT_METHOD(secondaryAudioShouldBeSilencedHint:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    BOOL secondaryAudioShouldBeSilencedHint = [AVAudioSession sharedInstance].secondaryAudioShouldBeSilencedHint;
+    resolve(@(secondaryAudioShouldBeSilencedHint));
+}
+
+RCT_EXPORT_METHOD(recordPermission:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    AVAudioSessionRecordPermission recordPermission = [AVAudioSession sharedInstance].recordPermission;
+    
+    NSString *recordPermissionStr = @"";
+    
+    if(recordPermission == AVAudioSessionRecordPermissionGranted)
+        recordPermissionStr = @"granted";
+    else if(recordPermission == AVAudioSessionRecordPermissionDenied)
+        recordPermissionStr = @"denied";
+    else
+        recordPermissionStr = @"undetermined";
+    
+    resolve(recordPermissionStr);
+}
+
+RCT_EXPORT_METHOD(inputAvailable:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    BOOL inputAvailable = [AVAudioSession sharedInstance].inputAvailable;
+    resolve(@(inputAvailable));
+}
+
 -(void) handleInterruption:(NSNotification*)notification{
-	NSLog(@"[RNAudioSession] An interruption occurred");
-	NSString* interruptTypeStr = @"";
-	NSInteger reason = [[[notification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey] integerValue];
-//    NSString* interruptTypeAsStr = [NSString stringWithFormat: @"%ld",(long)reason];
-	switch (reason) {
-		case AVAudioSessionInterruptionTypeBegan:
-		interruptTypeStr = @"Audo Session has been interrupted.";
-		break;
-		case AVAudioSessionInterruptionTypeEnded:
+    NSLog(@"[RNAudioSession] An interruption occurred");
+    NSString* interruptTypeStr = @"";
+    NSInteger reason = [[[notification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey] integerValue];
+    //    NSString* interruptTypeAsStr = [NSString stringWithFormat: @"%ld",(long)reason];
+    switch (reason) {
+        case AVAudioSessionInterruptionTypeBegan:
+            interruptTypeStr = @"Audo Session has been interrupted.";
+            break;
+        case AVAudioSessionInterruptionTypeEnded:
             interruptTypeStr = @"Audio Session interruption has ended.";
-		break;
-	}
-	[self.bridge.eventDispatcher sendAppEventWithName:@"AudioSessionInterruption" body:@{@"typeStr": interruptTypeStr, @"type": [NSNumber numberWithInteger:reason]}];
+            break;
+    }
+    [self.bridge.eventDispatcher sendAppEventWithName:@"AudioSessionInterruption" body:@{@"typeStr": interruptTypeStr, @"type": [NSNumber numberWithInteger:reason]}];
 }
 
 -(void) handleRouteChange:(NSNotification*)notification{
-  NSLog(@"[RNAudioSession] Audio route changed");
-  AVAudioSession *session = [ AVAudioSession sharedInstance ];
-  NSString* seccReason = @"";
-  NSInteger  reason = [[[notification userInfo] objectForKey:AVAudioSessionRouteChangeReasonKey] integerValue];
-  
-  switch (reason) {
-    case AVAudioSessionRouteChangeReasonNoSuitableRouteForCategory:
-      seccReason = @"The route changed because no suitable route is now available for the specified category.";
-      break;
-    case AVAudioSessionRouteChangeReasonWakeFromSleep:
-      seccReason = @"The route changed when the device woke up from sleep.";
-      break;
-    case AVAudioSessionRouteChangeReasonOverride:
-      seccReason = @"The output route was overridden by the app.";
-      break;
-    case AVAudioSessionRouteChangeReasonCategoryChange:
-      seccReason = @"The category of the session object changed.";
-      break;
-    case AVAudioSessionRouteChangeReasonOldDeviceUnavailable:
-      seccReason = @"The previous audio output path is no longer available.";
-      break;
-    case AVAudioSessionRouteChangeReasonNewDeviceAvailable:
-      seccReason = @"A preferred new audio output path is now available.";
-      break;
-    case AVAudioSessionRouteChangeReasonUnknown:
-    default:
-      seccReason = @"The reason for the change is unknown.";
-      break;
-  }
-  AVAudioSessionPortDescription *input = [[session.currentRoute.inputs count]?session.currentRoute.inputs:nil objectAtIndex:0];
-  AVAudioSessionPortDescription *output = [[session.currentRoute.outputs count]?session.currentRoute.outputs:nil objectAtIndex:0];
-  
-  NSString *inputStr = input.portType ? input.portType : @"";
-  NSString *outputStr = output.portType ? output.portType : @"";
-  
-//  lastOutputStr = outputStr;
+    NSLog(@"[RNAudioSession] Audio route changed");
+    AVAudioSession *session = [ AVAudioSession sharedInstance ];
+    NSString* seccReason = @"";
+    NSInteger  reason = [[[notification userInfo] objectForKey:AVAudioSessionRouteChangeReasonKey] integerValue];
     
-  NSLog(@"Change reason %@", seccReason);
-  NSLog(@"input %@", inputStr);
-  NSLog(@"output %@", outputStr);
-  
-//  if (lastOutputStr != outputStr) {
-//    lastOutputStr = outputStr;
-//
-//    if ([outputStr isEqualToString:@"Speaker"]) {
-//      [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord
-//                                       withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker
-//                                             error:nil];
-//    } else {
-//      [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord
-//                                       withOptions:AVAudioSessionCategoryOptionAllowBluetooth
-//                                             error:nil];
-//    }
-//  }
-
+    switch (reason) {
+        case AVAudioSessionRouteChangeReasonNoSuitableRouteForCategory:
+            seccReason = @"The route changed because no suitable route is now available for the specified category.";
+            break;
+        case AVAudioSessionRouteChangeReasonWakeFromSleep:
+            seccReason = @"The route changed when the device woke up from sleep.";
+            break;
+        case AVAudioSessionRouteChangeReasonOverride:
+            seccReason = @"The output route was overridden by the app.";
+            break;
+        case AVAudioSessionRouteChangeReasonCategoryChange:
+            seccReason = @"The category of the session object changed.";
+            break;
+        case AVAudioSessionRouteChangeReasonOldDeviceUnavailable:
+            seccReason = @"The previous audio output path is no longer available.";
+            break;
+        case AVAudioSessionRouteChangeReasonNewDeviceAvailable:
+            seccReason = @"A preferred new audio output path is now available.";
+            break;
+        case AVAudioSessionRouteChangeReasonUnknown:
+        default:
+            seccReason = @"The reason for the change is unknown.";
+            break;
+    }
+    AVAudioSessionPortDescription *input = [[session.currentRoute.inputs count]?session.currentRoute.inputs:nil objectAtIndex:0];
+    AVAudioSessionPortDescription *output = [[session.currentRoute.outputs count]?session.currentRoute.outputs:nil objectAtIndex:0];
+    
+    NSString *inputStr = input.portType ? input.portType : @"";
+    NSString *outputStr = output.portType ? output.portType : @"";
+    
+    //  lastOutputStr = outputStr;
+    
+    NSLog(@"Change reason %@", seccReason);
+    NSLog(@"input %@", inputStr);
+    NSLog(@"output %@", outputStr);
+    
+    //  if (lastOutputStr != outputStr) {
+    //    lastOutputStr = outputStr;
+    //
+    //    if ([outputStr isEqualToString:@"Speaker"]) {
+    //      [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord
+    //                                       withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker
+    //                                             error:nil];
+    //    } else {
+    //      [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord
+    //                                       withOptions:AVAudioSessionCategoryOptionAllowBluetooth
+    //                                             error:nil];
+    //    }
+    //  }
+    
     [self.bridge.eventDispatcher sendAppEventWithName:@"AudioSessionRouteChanged" body:@{@"input": inputStr, @"output": outputStr, @"reason": seccReason, @"category":[AVAudioSession sharedInstance].category, @"mode":[AVAudioSession sharedInstance].mode,@"options":[NSNumber numberWithInteger:[AVAudioSession sharedInstance].categoryOptions]}];
 }
 
 -(NSUInteger) convertOptionsToBitmask:(NSArray *) array  {
     
     NSUInteger bitmask = 0x0;
-
+    
     for (int i = 0; i < [array count]; i++)
     {
         NSString *key = array[i];
@@ -282,7 +316,7 @@ RCT_EXPORT_METHOD(setCategoryAndMode:(NSString *)category mode:(NSString *)mode 
     for(id key in _options) {
         NSNumber *option = [_options objectForKey:key];
         NSUInteger optionInt = [option unsignedIntegerValue];
-    
+        
         if((optionInt & options) == optionInt) {
             [array addObject: key];
         }
