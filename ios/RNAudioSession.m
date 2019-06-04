@@ -18,6 +18,7 @@
 static NSDictionary *_categories;
 static NSDictionary *_options;
 static NSDictionary *_modes;
+static NSDictionary *_portOverrides;
 
 + (void)initialize {
     _categories = @{
@@ -47,6 +48,10 @@ static NSDictionary *_modes;
                @"MoviePlayback": AVAudioSessionModeMoviePlayback,
                @"SpokenAudio": AVAudioSessionModeSpokenAudio
                };
+    _portOverrides = @{
+                       @"None": @(AVAudioSessionPortOverrideNone),
+                       @"Speaker": @(AVAudioSessionPortOverrideSpeaker)
+                       };
 }
 
 RCT_EXPORT_MODULE();
@@ -259,22 +264,194 @@ RCT_EXPORT_METHOD(availableInputs:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
     resolve(array);
 }
 
+RCT_EXPORT_METHOD(preferredInput:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    AVAudioSessionPortDescription *preferredInput = [AVAudioSession sharedInstance].preferredInput;
+    
+    if(preferredInput != nil) {
+        resolve([self convertAVAudioSessionPortDescriptionToDictionary: preferredInput]);
+    } else {
+        resolve(nil);
+    }
+}
+
+RCT_EXPORT_METHOD(setPreferredInput:(NSString *)uid resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+  
+    NSError *error = nil;
+    
+    NSArray *availableInputs = [AVAudioSession sharedInstance].availableInputs;
+    
+    BOOL found = false;
+    for(int i = 0; i < [availableInputs count]; i++) {
+        
+        AVAudioSessionPortDescription *input = availableInputs[i];
+        if(input.UID == uid) {
+            found = true;
+            [[AVAudioSession sharedInstance] setPreferredInput:input error:&error];
+            
+            if(error) {
+                reject(@"setPreferredInput", @"Could not set AVAudioSession preferred input.", error);
+            } else {
+                resolve(@"");
+            }
+        }
+    }
+    
+    if(found == false) {
+        NSDictionary *userInfo = @{
+                                   NSLocalizedDescriptionKey: @"Could not set AVAudioSession preferred input.",
+                                   NSLocalizedFailureReasonErrorKey: @"The preferred input is not in the list of available inputs."
+                                   };
+        NSError *error = [NSError errorWithDomain:@"RNAudioSession" code:-1 userInfo:userInfo];
+        reject(@"setPreferredInput", @"Could not set AVAudioSession preferred input.", error);
+    }
+}
+
+RCT_EXPORT_METHOD(inputDataSources:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSArray *inputDataSources = [AVAudioSession sharedInstance].inputDataSources;
+    
+    NSMutableArray *array = [NSMutableArray array];
+    
+    for (int i = 0; i < [inputDataSources count]; i++) {
+        AVAudioSessionDataSourceDescription *dataSource = inputDataSources[i];
+        NSDictionary *dataSourceDict = [self convertAVAudioSessionDataSourceDescriptionToDictionary: dataSource];
+        [array addObject: dataSourceDict];
+    }
+    
+    resolve(array);
+}
+
 RCT_EXPORT_METHOD(inputDataSource:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     AVAudioSessionDataSourceDescription *inputDataSource = [AVAudioSession sharedInstance].inputDataSource;
     
     if(inputDataSource != nil) {
-        NSDictionary *inputDataSourceDict = @{
-            @"dataSourceID": inputDataSource.dataSourceID,
-            @"dataSourceName": inputDataSource.dataSourceName
-           // @"location": inputDataSource.location,
-           // @"orientation": inputDataSource.orientation
-        };
+        NSDictionary *inputDataSourceDict = [self convertAVAudioSessionDataSourceDescriptionToDictionary: inputDataSource];
         resolve(inputDataSourceDict);
     } else {
         resolve(nil);
     }
 }
+
+RCT_EXPORT_METHOD(setInputDataSource:(NSNumber *)dataSourceId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    
+    NSError *error = nil;
+    
+    NSArray *inputDataSources = [AVAudioSession sharedInstance].inputDataSources;
+    
+    BOOL found = false;
+    for(int i = 0; i < [inputDataSources count]; i++) {
+        
+        AVAudioSessionDataSourceDescription *inputDataSource = inputDataSources[i];
+        if(inputDataSource.dataSourceID == dataSourceId) {
+            found = true;
+            [[AVAudioSession sharedInstance] setInputDataSource:inputDataSource error:&error];
+            
+            if(error) {
+                reject(@"setInputDataSource", @"Could not set AVAudioSession input dataSource.", error);
+            } else {
+                resolve(@"");
+            }
+        }
+    }
+    
+    if(found == false) {
+        NSDictionary *userInfo = @{
+                                   NSLocalizedDescriptionKey: @"Could not set AVAudioSession input dataSource.",
+                                   NSLocalizedFailureReasonErrorKey: @"The input dataSource is not in the list of available input dataSources."
+                                   };
+        NSError *error = [NSError errorWithDomain:@"RNAudioSession" code:-1 userInfo:userInfo];
+        reject(@"setInputDataSource", @"Could not set AVAudioSession input dataSource.", error);
+    }
+}
+
+RCT_EXPORT_METHOD(outputDataSources:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSArray *outputDataSources = [AVAudioSession sharedInstance].outputDataSources;
+    
+    NSMutableArray *array = [NSMutableArray array];
+    
+    for (int i = 0; i < [outputDataSources count]; i++) {
+        AVAudioSessionDataSourceDescription *dataSource = outputDataSources[i];
+        NSDictionary *dataSourceDict = [self convertAVAudioSessionDataSourceDescriptionToDictionary: dataSource];
+        [array addObject: dataSourceDict];
+    }
+    
+    resolve(array);
+}
+
+RCT_EXPORT_METHOD(outputDataSource:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    AVAudioSessionDataSourceDescription *outputDataSource = [AVAudioSession sharedInstance].outputDataSource;
+    
+    if(outputDataSource != nil) {
+        NSDictionary *outputDataSourceDict = [self convertAVAudioSessionDataSourceDescriptionToDictionary: outputDataSource];
+        resolve(outputDataSourceDict);
+    } else {
+        resolve(nil);
+    }
+}
+
+RCT_EXPORT_METHOD(setOutputDataSource:(NSNumber *)dataSourceId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    
+    NSError *error = nil;
+    
+    NSArray *outputDataSources = [AVAudioSession sharedInstance].outputDataSources;
+    
+    BOOL found = false;
+    for(int i = 0; i < [outputDataSources count]; i++) {
+        
+        AVAudioSessionDataSourceDescription *outputDataSource = outputDataSources[i];
+        if(outputDataSource.dataSourceID == dataSourceId) {
+            found = true;
+            [[AVAudioSession sharedInstance] setInputDataSource:outputDataSource error:&error];
+            
+            if(error) {
+                reject(@"setOutputDataSource", @"Could not set AVAudioSession input dataSource.", error);
+            } else {
+                resolve(@"");
+            }
+        }
+    }
+    
+    if(found == false) {
+        NSDictionary *userInfo = @{
+                                   NSLocalizedDescriptionKey: @"Could not set AVAudioSession input dataSource.",
+                                   NSLocalizedFailureReasonErrorKey: @"The input dataSource is not in the list of available output dataSources."
+                                   };
+        NSError *error = [NSError errorWithDomain:@"RNAudioSession" code:-1 userInfo:userInfo];
+        reject(@"setOutputDataSource", @"Could not set AVAudioSession output dataSource.", error);
+    }
+}
+
+RCT_EXPORT_METHOD(overrideOutputAudioPort:(NSString *)override resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSError *error = nil;
+    NSNumber *overrideValue = [_portOverrides objectForKey:override];
+    
+    if(overrideValue != nil) {
+        
+        [[AVAudioSession sharedInstance] overrideOutputAudioPort: [overrideValue unsignedIntegerValue] error:&error];
+        if(error) {
+            reject(@"overrideOutputAudioPort", @"Could not override AVAudioSession output port.", error);
+        } else {
+            resolve(@"");
+        }
+    } else {
+        NSDictionary *userInfo = @{
+                                   NSLocalizedDescriptionKey: @"Could not override AVAudioSession output port.",
+                                   NSLocalizedFailureReasonErrorKey: @"Invalid port override value."
+                                   };
+        
+        NSError *error = [NSError errorWithDomain:@"RNAudioSession" code:-1 userInfo:userInfo];
+        reject(@"overrideOutputAudioPort", @"Could not override AVAudioSession output port.", error);
+    }
+}
+
 
 -(void) handleInterruption:(NSNotification*)notification{
     NSLog(@"[RNAudioSession] An interruption occurred");
@@ -392,6 +569,17 @@ RCT_EXPORT_METHOD(inputDataSource:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
                                @"uid": port.UID
                                };
     return portDict;
+}
+
+-(NSDictionary *) convertAVAudioSessionDataSourceDescriptionToDictionary:(AVAudioSessionDataSourceDescription *) dataSource {
+    
+    NSDictionary *dataSourceDict = @{
+                                     @"dataSourceID": dataSource.dataSourceID,
+                                     @"dataSourceName": dataSource.dataSourceName,
+                                     @"location": dataSource.location,
+                                     @"orientation": dataSource.orientation
+                                     };
+    return dataSourceDict;
 }
 
 @end

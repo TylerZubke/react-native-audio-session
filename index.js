@@ -33,6 +33,11 @@ export const AudioModes = {
 	SpokenAudio: 'SpokenAudio'
 }
 
+export const OutputAudioPortOverrides = {
+	None: 'None',
+	Speaker: 'Speaker'
+}
+
 const create = () => {
 
 	const noAndroid = () => {
@@ -122,7 +127,7 @@ const create = () => {
 		if (IS_IOS) {
 			return new Promise((resolve, reject) => {
 				RNAudioSession.currentRoute().then((event) => {
-					resolve(event)
+					resolve(event);
 				}).catch((err) => {
 					reject(err);
 				})
@@ -136,7 +141,7 @@ const create = () => {
 		if (IS_IOS) {
 			return new Promise((resolve, reject) => {
 				RNAudioSession.otherAudioPlaying().then((event) => {
-					resolve(event)
+					resolve(event);
 				}).catch((err) => {
 					reject(err);
 				})
@@ -178,7 +183,7 @@ const create = () => {
 		if (IS_IOS) {
 			return new Promise((resolve, reject) => {
 				RNAudioSession.inputAvailable().then((event) => {
-					resolve(event)
+					resolve(event);
 				}).catch((err) => {
 					reject(err);
 				})
@@ -187,7 +192,6 @@ const create = () => {
 			return noAndroid()
 		}
 	}
-
 
 	const availableInputs = () => {
 		if (IS_IOS) {
@@ -203,11 +207,124 @@ const create = () => {
 		}
 	}
 
+	const preferredInput = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.preferredInput().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const setPreferredInput = (uid) => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.setPreferredInput(uid).then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const inputDataSources = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.inputDataSources().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
 	const inputDataSource = () => {
 		if (IS_IOS) {
 			return new Promise((resolve, reject) => {
 				RNAudioSession.inputDataSource().then((event) => {
-					resolve(event)
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+
+	const setInputDataSource = (dataSourceId) => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.inputDataSource(dataSourceId).then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const outputDataSources = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.outputDataSources().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const outputDataSource = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.outputDataSource().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const setOutputDataSource = (dataSourceId) => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.setOutputDataSource(dataSourceId).then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const overrideOutputAudioPort = (port) => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.overrideOutputAudioPort(port).then((event) => {
+					resolve(event);
 				}).catch((err) => {
 					reject(err);
 				})
@@ -232,8 +349,16 @@ const create = () => {
 		secondaryAudioShouldBeSilencedHint,
 		recordPermission,
 		inputAvailable,
+		preferredInput,
+		setPreferredInput,
 		availableInputs,
-		inputDataSource
+		inputDataSources,
+		inputDataSource,
+		setInputDataSource,
+		outputDataSources,
+		outputDataSource,
+		setOutputDataSource,
+		overrideOutputAudioPort
 	}
 }
 
