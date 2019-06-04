@@ -33,7 +33,7 @@ export const AudioModes = {
 	SpokenAudio: 'SpokenAudio'
 }
 
-export const OutputAudioPortOverrides = {
+export const AudioPortOverrides = {
 	None: 'None',
 	Speaker: 'Speaker'
 }
