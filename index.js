@@ -334,6 +334,176 @@ const create = () => {
 		}
 	}
 
+	const inputGain = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.inputGain().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const inputGainSettable = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.inputGainSettable().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const setInputGain = (inputGain) => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.setInputGain(inputGain).then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const outputVolume = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.outputVolume().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const inputLatency = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.inputLatency().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const outputLatency = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.outputLatency().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const sampleRate = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.sampleRate().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const preferredSampleRate = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.preferredSampleRate().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+
+	const setPreferredSampleRate = (sampleRate) => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.setPreferredSampleRate(sampleRate).then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+
+	const IOBufferDuration = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.IOBufferDuration().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const preferredIOBufferDuration = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.preferredIOBufferDuration().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+
+	const setPreferredIOBufferDuration = (duration) => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.setPreferredIOBufferDuration(duration).then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
 
 	return {
 		init,
@@ -358,7 +528,19 @@ const create = () => {
 		outputDataSources,
 		outputDataSource,
 		setOutputDataSource,
-		overrideOutputAudioPort
+		overrideOutputAudioPort,
+		inputGain,
+		inputGainSettable,
+		setInputGain,
+		outputVolume,
+		inputLatency,
+		outputLatency,
+		sampleRate,
+		preferredSampleRate,
+		setPreferredSampleRate,
+		IOBufferDuration,
+		preferredIOBufferDuration,
+		setPreferredIOBufferDuration
 	}
 }
 

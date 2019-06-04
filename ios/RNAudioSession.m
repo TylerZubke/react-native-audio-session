@@ -452,6 +452,86 @@ RCT_EXPORT_METHOD(overrideOutputAudioPort:(NSString *)override resolver:(RCTProm
     }
 }
 
+RCT_EXPORT_METHOD(inputGain:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    resolve(@([AVAudioSession sharedInstance].inputGain));
+}
+
+RCT_EXPORT_METHOD(inputGainSettable:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    resolve(@([AVAudioSession sharedInstance].inputGainSettable));
+}
+
+RCT_EXPORT_METHOD(setInputGain:(float)inputGain resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSError *error = nil;
+    [[AVAudioSession sharedInstance] setInputGain:inputGain error:&error];
+    
+    if(error) {
+        reject(@"setInputGain",@"Could not set input gain.", error);
+    } else {
+        resolve(@"");
+    }
+}
+
+RCT_EXPORT_METHOD(outputVolume:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    resolve(@([AVAudioSession sharedInstance].outputVolume));
+}
+
+RCT_EXPORT_METHOD(inputLatency:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    resolve(@([AVAudioSession sharedInstance].inputLatency));
+}
+
+RCT_EXPORT_METHOD(outputLatency:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    resolve(@([AVAudioSession sharedInstance].outputLatency));
+}
+
+RCT_EXPORT_METHOD(sampleRate:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    resolve(@([AVAudioSession sharedInstance].sampleRate));
+}
+
+RCT_EXPORT_METHOD(preferredSampleRate:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    resolve(@([AVAudioSession sharedInstance].preferredSampleRate));
+}
+
+RCT_EXPORT_METHOD(setPreferredSampleRate:(double)sampleRate resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSError *error = nil;
+    
+    [[AVAudioSession sharedInstance] setPreferredSampleRate:sampleRate error:&error];
+    if(error) {
+        reject(@"setPreferredSampleRate", @"Could not set preferred sample rate.", error);
+    } else {
+        resolve(@"");
+    }
+}
+
+RCT_EXPORT_METHOD(IOBufferDuration:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    resolve(@([AVAudioSession sharedInstance].IOBufferDuration));
+}
+
+RCT_EXPORT_METHOD(preferredIOBufferDuration:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    resolve(@([AVAudioSession sharedInstance].IOBufferDuration));
+}
+
+RCT_EXPORT_METHOD(setPreferredIOBufferDuration:(NSTimeInterval)duration resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSError *error = nil;
+    
+    [[AVAudioSession sharedInstance] setPreferredIOBufferDuration:duration error:&error];
+    if(error) {
+        reject(@"setPeferredIOBufferDuration", @"Could not set preferred IO buffer durationrate.", error);
+    } else {
+        resolve(@"");
+    }
+}
 
 -(void) handleInterruption:(NSNotification*)notification{
     NSLog(@"[RNAudioSession] An interruption occurred");
