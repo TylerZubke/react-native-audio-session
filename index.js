@@ -45,6 +45,13 @@ const create = () => {
 			resolve("AudioSession is not supported on Android.")
 		})
 	}
+
+	/*
+	 *
+	 * Audio session configuration
+	 *
+	 */
+
 	const currentCategory = () => {
 		if (IS_IOS) {
 			return new Promise((resolve, reject) => {
@@ -75,6 +82,30 @@ const create = () => {
 		if (IS_IOS) {
 			return new Promise((resolve, reject) => {
 				RNAudioSession.mode(event => {
+					resolve(event)
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const availableCategories = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.availableCategories().then(event => {
+					resolve(event)
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const availableModes = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.availableModes().then(event => {
 					resolve(event)
 				})
 			})
@@ -137,6 +168,13 @@ const create = () => {
 		}
 	}
 
+
+	/*
+	 *
+	 * Responding to other audio
+	 *
+	 */
+
 	const otherAudioPlaying = () => {
 		if (IS_IOS) {
 			return new Promise((resolve, reject) => {
@@ -165,6 +203,13 @@ const create = () => {
 		}
 	}
 
+
+	/*
+	 *
+	 * Recording permissions
+	 *
+	 */
+
 	const recordPermission = () => {
 		if (IS_IOS) {
 			return new Promise((resolve, reject) => {
@@ -178,6 +223,13 @@ const create = () => {
 			return noAndroid()
 		}
 	}
+
+
+	/*
+	 *
+	 * Audio routes
+	 *
+	 */
 
 	const inputAvailable = () => {
 		if (IS_IOS) {
@@ -333,6 +385,131 @@ const create = () => {
 			return noAndroid()
 		}
 	}
+
+
+	/*
+	 *
+	 * Audio channels
+	 *
+	 */
+
+	const inputNumberOfChannels = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.inputNumberOfChannels().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const maximumInputNumberOfChannels = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.maximumInputNumberOfChannels().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const preferredInputNumberOfChannels = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.preferredInputNumberOfChannels().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const setPreferredInputNumberOfChannels = (numChannels) => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.setPreferredInputNumberOfChannels(numChannels).then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const outputNumberOfChannels = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.outputNumberOfChannels().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const maximumOutputNumberOfChannels = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.maximumOutputNumberOfChannels().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const preferredOutputNumberOfChannels = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.preferredOutputNumberOfChannels().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const setPreferredOutputNumberOfChannels = (numChannels) => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.setPreferredOutputNumberOfChannels(numChannels).then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	/*
+	 *
+	 * Audio device settings
+	 *
+	 */
 
 	const inputGain = () => {
 		if (IS_IOS) {
@@ -510,6 +687,8 @@ const create = () => {
 		currentCategory,
 		currentOptions,
 		currentMode,
+		availableCategories,
+		availableModes,
 		setActive,
 		setCategory,
 		setMode,
@@ -529,6 +708,14 @@ const create = () => {
 		outputDataSource,
 		setOutputDataSource,
 		overrideOutputAudioPort,
+		inputNumberOfChannels,
+		maximumInputNumberOfChannels,
+		preferredInputNumberOfChannels,
+		setPreferredInputNumberOfChannels,
+		outputNumberOfChannels,
+		maximumOutputNumberOfChannels,
+		preferredOutputNumberOfChannels,
+		setPreferredOutputNumberOfChannels,
 		inputGain,
 		inputGainSettable,
 		setInputGain,

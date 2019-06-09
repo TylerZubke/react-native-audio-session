@@ -16,8 +16,10 @@
 @synthesize bridge = _bridge;
 
 static NSDictionary *_categories;
+static NSDictionary *_categoriesToString;
 static NSDictionary *_options;
 static NSDictionary *_modes;
+static NSDictionary *_modesToString;
 static NSDictionary *_portOverrides;
 
 + (void)initialize {
@@ -29,6 +31,16 @@ static NSDictionary *_portOverrides;
                     @"PlayAndRecord": AVAudioSessionCategoryPlayAndRecord,
                     @"MultiRoute": AVAudioSessionCategoryMultiRoute
                     };
+    
+    _categoriesToString = @{
+                            AVAudioSessionCategoryAmbient: @"Ambient",
+                            AVAudioSessionCategorySoloAmbient: @"SoloAmbient",
+                            AVAudioSessionCategoryPlayback: @"Playback",
+                            AVAudioSessionCategoryRecord: @"Record",
+                            AVAudioSessionCategoryPlayAndRecord: @"PlayAndRecord",
+                            AVAudioSessionCategoryMultiRoute: @"MultiRoute"
+                            };
+    
     _options = @{
                  @"MixWithOthers": @(AVAudioSessionCategoryOptionMixWithOthers),
                  @"DuckOthers": @(AVAudioSessionCategoryOptionDuckOthers),
@@ -48,6 +60,18 @@ static NSDictionary *_portOverrides;
                @"MoviePlayback": AVAudioSessionModeMoviePlayback,
                @"SpokenAudio": AVAudioSessionModeSpokenAudio
                };
+    
+    _modesToString = @{
+                       AVAudioSessionModeDefault: @"Default",
+                       AVAudioSessionModeVoiceChat: @"VoiceChat",
+                       AVAudioSessionModeVideoChat: @"VideoChat",
+                       AVAudioSessionModeGameChat: @"GameChat",
+                       AVAudioSessionModeVideoRecording: @"VideoRecording",
+                       AVAudioSessionModeMeasurement: @"Measurement",
+                       AVAudioSessionModeMoviePlayback: @"MoviePlayback",
+                       AVAudioSessionModeSpokenAudio: @"SpokenAudio"
+                       };
+    
     _portOverrides = @{
                        @"None": @(AVAudioSessionPortOverrideNone),
                        @"Speaker": @(AVAudioSessionPortOverrideSpeaker)
@@ -84,6 +108,13 @@ RCT_EXPORT_METHOD(init:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectB
     resolve(@"Done!");
 }
 
+
+/*
+ *
+ * Audio session configuration
+ *
+ */
+
 RCT_EXPORT_METHOD(category:(RCTResponseSenderBlock)callback)
 {
     callback(@[[AVAudioSession sharedInstance].category]);
@@ -100,6 +131,33 @@ RCT_EXPORT_METHOD(options:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRe
 RCT_EXPORT_METHOD(mode:(RCTResponseSenderBlock)callback)
 {
     callback(@[[AVAudioSession sharedInstance].mode]);
+}
+
+RCT_EXPORT_METHOD(availableCategories:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSArray *availableCategories = [AVAudioSession sharedInstance].availableCategories;
+    NSMutableArray *availableCategoriesArray = [NSMutableArray array];
+    for(int i = 0; i < [availableCategories count]; i++) {
+        NSString *category = availableCategories[i];
+        [availableCategoriesArray addObject: [_categoriesToString objectForKey:category]];
+    }
+    
+    resolve(availableCategoriesArray);
+}
+
+RCT_EXPORT_METHOD(availableModes:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSArray *availableModes = [AVAudioSession sharedInstance].availableModes;
+    NSMutableArray *availableModesArray = [NSMutableArray array];
+    for(int i = 0; i < [availableModes count]; i++) {
+        NSString *mode = availableModes[i];
+        NSString *modeStr = [_modesToString objectForKey:mode];
+        if(modeStr != nil) {
+            [availableModesArray addObject: modeStr];
+        }
+    }
+    
+    resolve(availableModesArray);
 }
 
 RCT_EXPORT_METHOD(setActive:(BOOL)active resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -187,6 +245,13 @@ RCT_EXPORT_METHOD(setCategoryAndMode:(NSString *)category mode:(NSString *)mode 
     }
 }
 
+
+/*
+ *
+ * Responding to other audio
+ *
+ */
+
 RCT_EXPORT_METHOD(otherAudioPlaying:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     BOOL otherAudioPlaying = [AVAudioSession sharedInstance].otherAudioPlaying;
@@ -198,6 +263,35 @@ RCT_EXPORT_METHOD(secondaryAudioShouldBeSilencedHint:(RCTPromiseResolveBlock)res
     BOOL secondaryAudioShouldBeSilencedHint = [AVAudioSession sharedInstance].secondaryAudioShouldBeSilencedHint;
     resolve(@(secondaryAudioShouldBeSilencedHint));
 }
+
+/*
+ *
+ * Recording permissions
+ *
+ */
+
+RCT_EXPORT_METHOD(recordPermission:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    AVAudioSessionRecordPermission recordPermission = [AVAudioSession sharedInstance].recordPermission;
+    
+    NSString *recordPermissionStr = @"";
+    
+    if(recordPermission == AVAudioSessionRecordPermissionGranted)
+        recordPermissionStr = @"granted";
+    else if(recordPermission == AVAudioSessionRecordPermissionDenied)
+        recordPermissionStr = @"denied";
+    else
+        recordPermissionStr = @"undetermined";
+    
+    resolve(recordPermissionStr);
+}
+
+
+/*
+ *
+ * Audio routes
+ *
+ */
 
 RCT_EXPORT_METHOD(currentRoute:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -225,22 +319,6 @@ RCT_EXPORT_METHOD(currentRoute:(RCTPromiseResolveBlock)resolve rejecter:(RCTProm
                                        };
     
     resolve(currentRouteDict);
-}
-
-RCT_EXPORT_METHOD(recordPermission:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-    AVAudioSessionRecordPermission recordPermission = [AVAudioSession sharedInstance].recordPermission;
-    
-    NSString *recordPermissionStr = @"";
-    
-    if(recordPermission == AVAudioSessionRecordPermissionGranted)
-        recordPermissionStr = @"granted";
-    else if(recordPermission == AVAudioSessionRecordPermissionDenied)
-        recordPermissionStr = @"denied";
-    else
-        recordPermissionStr = @"undetermined";
-    
-    resolve(recordPermissionStr);
 }
 
 RCT_EXPORT_METHOD(inputAvailable:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -277,7 +355,7 @@ RCT_EXPORT_METHOD(preferredInput:(RCTPromiseResolveBlock)resolve rejecter:(RCTPr
 
 RCT_EXPORT_METHOD(setPreferredInput:(NSString *)uid resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-  
+    
     NSError *error = nil;
     
     NSArray *availableInputs = [AVAudioSession sharedInstance].availableInputs;
@@ -451,6 +529,80 @@ RCT_EXPORT_METHOD(overrideOutputAudioPort:(NSString *)override resolver:(RCTProm
         reject(@"overrideOutputAudioPort", @"Could not override AVAudioSession output port.", error);
     }
 }
+
+
+/*
+ *
+ * Audio channels
+ *
+ */
+
+RCT_EXPORT_METHOD(inputNumberOfChannels:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSInteger inputNumberOfChannels = [AVAudioSession sharedInstance].inputNumberOfChannels;
+    resolve(@(inputNumberOfChannels));
+}
+
+RCT_EXPORT_METHOD(maximumInputNumberOfChannels:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSInteger maximumInputNumberOfChannels = [AVAudioSession sharedInstance].maximumInputNumberOfChannels;
+    resolve(@(maximumInputNumberOfChannels));
+}
+
+RCT_EXPORT_METHOD(preferredInputNumberOfChannels:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSInteger preferredInputNumberOfChannels = [AVAudioSession sharedInstance].preferredInputNumberOfChannels;
+    resolve(@(preferredInputNumberOfChannels));
+}
+
+RCT_EXPORT_METHOD(setPreferredInputNumberOfChannels:(NSInteger)numChannels resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSError *error = nil;
+    
+    [[AVAudioSession sharedInstance] setPreferredInputNumberOfChannels:numChannels error:&error];
+    if(error) {
+        reject(@"setPreferredInputNumberOfChannels", @"Could not set preferred input numberof channels.", error);
+    } else {
+        resolve(@"");
+    }
+}
+
+RCT_EXPORT_METHOD(outputNumberOfChannels:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSInteger outputNumberOfChannels = [AVAudioSession sharedInstance].outputNumberOfChannels;
+    resolve(@(outputNumberOfChannels));
+}
+
+RCT_EXPORT_METHOD(maximumOutputNumberOfChannels:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSInteger maximumOutputNumberOfChannels = [AVAudioSession sharedInstance].maximumOutputNumberOfChannels;
+    resolve(@(maximumOutputNumberOfChannels));
+}
+
+RCT_EXPORT_METHOD(preferredOutputNumberOfChannels:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSInteger preferredOutputNumberOfChannels = [AVAudioSession sharedInstance].preferredOutputNumberOfChannels;
+    resolve(@(preferredOutputNumberOfChannels));
+}
+
+RCT_EXPORT_METHOD(setPreferredOutputNumberOfChannels:(NSInteger)numChannels resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSError *error = nil;
+    
+    [[AVAudioSession sharedInstance] setPreferredOutputNumberOfChannels:numChannels error:&error];
+    if(error) {
+        reject(@"setPreferredOutputNumberOfChannels", @"Could not set preferred output numberof channels.", error);
+    } else {
+        resolve(@"");
+    }
+}
+
+
+/*
+ *
+ * Audio device settings
+ *
+ */
 
 RCT_EXPORT_METHOD(inputGain:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
