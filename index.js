@@ -38,6 +38,17 @@ export const AudioPortOverrides = {
 	Speaker: 'Speaker'
 }
 
+export const AudioRecordPermissions = {
+	Granted: 'Granted',
+	Denied: 'Denied',
+	Undetermined: 'Undetermined'
+}
+
+export const AudioRouteSharingPolicies = {
+	Default: 'Default',
+	Independent: 'Independent'
+}
+
 const create = () => {
 
 	const noAndroid = () => {
@@ -224,6 +235,20 @@ const create = () => {
 		}
 	}
 
+	const requestRecordPermission = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.requestRecordPermission().then((event) => {
+					resolve(event)
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
 
 	/*
 	 *
@@ -385,6 +410,36 @@ const create = () => {
 			return noAndroid()
 		}
 	}
+
+
+	const routeSharingPolicy = () => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.routeSharingPolicy().then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
+	const setCategoryAndModeAndRouteSharingPolicy = (category, mode, routeSharingPolicy, options) => {
+		if (IS_IOS) {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.setCategoryAndModeAndRouteSharingPolicy(category, mode, routeSharingPolicy, options).then((event) => {
+					resolve(event);
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		} else {
+			return noAndroid()
+		}
+	}
+
 
 
 	/*
@@ -697,6 +752,7 @@ const create = () => {
 		otherAudioPlaying,
 		secondaryAudioShouldBeSilencedHint,
 		recordPermission,
+		requestRecordPermission,
 		inputAvailable,
 		preferredInput,
 		setPreferredInput,
@@ -708,6 +764,8 @@ const create = () => {
 		outputDataSource,
 		setOutputDataSource,
 		overrideOutputAudioPort,
+		routeSharingPolicy,
+		setCategoryAndModeAndRouteSharingPolicy,
 		inputNumberOfChannels,
 		maximumInputNumberOfChannels,
 		preferredInputNumberOfChannels,

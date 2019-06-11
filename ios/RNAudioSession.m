@@ -21,6 +21,8 @@ static NSDictionary *_options;
 static NSDictionary *_modes;
 static NSDictionary *_modesToString;
 static NSDictionary *_portOverrides;
+static NSDictionary *_routeSharingPolicies;
+static NSDictionary *_routeSharingPoliciesToString;
 
 + (void)initialize {
     _categories = @{
@@ -76,6 +78,19 @@ static NSDictionary *_portOverrides;
                        @"None": @(AVAudioSessionPortOverrideNone),
                        @"Speaker": @(AVAudioSessionPortOverrideSpeaker)
                        };
+    
+    _routeSharingPolicies = @{
+                              @"Default": @(AVAudioSessionRouteSharingPolicyDefault),
+                              @"Independent": @(AVAudioSessionRouteSharingPolicyIndependent)
+                              };
+    
+    NSString *routeSharingPolicyDefaultKey = [NSString stringWithFormat:@"%ld", (long)AVAudioSessionRouteSharingPolicyDefault];
+    NSString *routeSharingPolicyIndependentKey = [NSString stringWithFormat:@"%ld", (long)AVAudioSessionRouteSharingPolicyIndependent];
+    
+    _routeSharingPoliciesToString = @{
+                            routeSharingPolicyDefaultKey: @"Default",
+                            routeSharingPolicyIndependentKey: @"Independent"
+                            };
 }
 
 RCT_EXPORT_MODULE();
@@ -277,13 +292,35 @@ RCT_EXPORT_METHOD(recordPermission:(RCTPromiseResolveBlock)resolve rejecter:(RCT
     NSString *recordPermissionStr = @"";
     
     if(recordPermission == AVAudioSessionRecordPermissionGranted)
-        recordPermissionStr = @"granted";
+        recordPermissionStr = @"Granted";
     else if(recordPermission == AVAudioSessionRecordPermissionDenied)
-        recordPermissionStr = @"denied";
+        recordPermissionStr = @"Denied";
     else
-        recordPermissionStr = @"undetermined";
+        recordPermissionStr = @"Undetermined";
     
     resolve(recordPermissionStr);
+}
+
+RCT_EXPORT_METHOD(requestRecordPermission:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    AVAudioSessionRecordPermission permissionStatus = [[AVAudioSession sharedInstance] recordPermission];    
+    if(permissionStatus == AVAudioSessionRecordPermissionUndetermined) {
+        [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
+            if (granted) {
+                resolve(@"Granted");
+            }
+            else {
+                resolve(@"Denied");
+            }
+        }];
+    } else if (permissionStatus == AVAudioSessionRecordPermissionGranted) {
+        resolve(@"Granted");
+		
+    } else if (permissionStatus == AVAudioSessionRecordPermissionDenied) {
+        resolve(@"Denied");
+    } else {
+        resolve(@"Undetermined");
+	}
 }
 
 
@@ -527,6 +564,53 @@ RCT_EXPORT_METHOD(overrideOutputAudioPort:(NSString *)override resolver:(RCTProm
         
         NSError *error = [NSError errorWithDomain:@"RNAudioSession" code:-1 userInfo:userInfo];
         reject(@"overrideOutputAudioPort", @"Could not override AVAudioSession output port.", error);
+    }
+}
+
+RCT_EXPORT_METHOD(routeSharingPolicy:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    if (@available(iOS 11, *)) {
+        AVAudioSessionRouteSharingPolicy routeSharingPolicy = [AVAudioSession sharedInstance].routeSharingPolicy;
+        NSString *routeSharingPolicyString = [_routeSharingPoliciesToString objectForKey: [NSString stringWithFormat:@"%ld", (long)routeSharingPolicy]];
+        resolve(routeSharingPolicyString);
+    } else {
+        resolve(nil);
+    }
+}
+
+RCT_EXPORT_METHOD(setCategoryAndModeAndRouteSharingPolicy:(NSString *)category mode:(NSString *)mode routeSharingPolicy:(NSString *)routeSharingPolicy options:(NSArray *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    
+    if (@available(iOS 11, *)) {
+    
+        NSString* cat = _categories[category];
+        NSString* mod = _modes[mode];
+        NSNumber *rsPolicy = [_options objectForKey:routeSharingPolicy];
+        if (cat != nil && mod != nil && rsPolicy != nil && options != nil && [[AVAudioSession sharedInstance].availableCategories containsObject:cat] && [[AVAudioSession sharedInstance].availableModes containsObject:mod]) {
+            NSError *error = nil;
+            NSUInteger optionsArg = [self convertOptionsToBitmask: options];
+            [[AVAudioSession sharedInstance] setCategory:cat mode:mod routeSharingPolicy: [rsPolicy intValue] options: optionsArg error:&error];
+            
+            if (error) {
+                reject(@"setCategoryAndModeAndRouteSharingPolicy", @"Could not set category and mode.", error);
+            } else {
+                resolve(@[]);
+            }
+        } else {
+            NSDictionary *userInfo = @{
+                                       NSLocalizedDescriptionKey: @"Could not set AVAudioSession category and mode.",
+                                       NSLocalizedFailureReasonErrorKey: @"The given category or mode is not supported on this device.",
+                                       NSLocalizedRecoverySuggestionErrorKey: @"Try another category or mode."
+                                       };
+            NSError *error = [NSError errorWithDomain:@"RNAudioSession" code:-1 userInfo:userInfo];
+            reject(@"setCategoryAndModeAndRouteSharingPolicy", @"Could not set category, mode, and route sharing policy.", error);
+        }
+    } else {
+        NSDictionary *userInfo = @{
+                                   NSLocalizedDescriptionKey: @"Could not set AVAudioSession category, mode, and route sharing policy, IOS version needs to be >= 11."
+                                   };
+        NSError *error = [NSError errorWithDomain:@"RNAudioSession" code:-1 userInfo:userInfo];
+        reject(@"setCategoryAndModeAndRouteSharingPolicy", @"Could not set AVAudioSession category, mode, and route sharing policy, IOS version needs to be >= 11.", error);
     }
 }
 
