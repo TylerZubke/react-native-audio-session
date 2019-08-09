@@ -27,3 +27,18 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+
+# Android/IntelliJ
+#
+build/
+.idea
+.gradle
+local.properties
+*.iml
+.settings
+.project
+.classpath
+gradle/
+gradlew
+gradlew.bat
+settings.gradle
