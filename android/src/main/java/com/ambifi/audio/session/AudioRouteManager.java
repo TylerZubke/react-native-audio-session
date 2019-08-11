@@ -14,6 +14,7 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.util.Log;
 
+import com.ambifi.audio.session.bluetooth.BluetoothHeadsetUtils;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.WritableMap;
@@ -67,11 +68,9 @@ public class AudioRouteManager {
 
                         if(bluetoothHeadset.startVoiceRecognition(connectedHeadset)) {
                             Log.i(TAG,"Bluetooth headset connected and audio started");
-                            bluetoothHeadsetConnected = true;
                             dispatchCurrentAudioRoute();
                         } else {
                             Log.i(TAG,"Bluetooth headset connected, unable to start audio");
-                            bluetoothHeadsetConnected = false;
                             dispatchCurrentAudioRoute();
                         }
                         localAudioManager.setBluetoothScoOn(true);
@@ -119,7 +118,6 @@ public class AudioRouteManager {
                         localAudioManager.setBluetoothScoOn(false);
                         localAudioManager.stopBluetoothSco();
 
-                        bluetoothHeadsetConnected = false;
                         dispatchCurrentAudioRoute();
                     }
                 } else if (action.equals(Intent.ACTION_HEADSET_PLUG)) {
@@ -195,7 +193,7 @@ public class AudioRouteManager {
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("AudioSessionRouteChanged", params);
 
-        } else if (bluetoothHeadsetConnected) {
+        } else if (BluetoothHeadsetUtils.isConnected()) {
             WritableMap params = Arguments.createMap();
             params.putString("input", "BluetoothHFP");
             params.putString("output", "BluetoothHFP");
