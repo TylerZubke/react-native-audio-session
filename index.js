@@ -158,11 +158,7 @@ const create = () => {
 	}
 
 	const init = () => {
-		if (IS_IOS) {
-			return RNAudioSession.init();
-		} else {
-			return noAndroid();
-		}
+		return RNAudioSession.init();
 	}
 
 	const currentRoute = () => {

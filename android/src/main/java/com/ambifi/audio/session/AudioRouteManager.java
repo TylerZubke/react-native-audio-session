@@ -33,7 +33,7 @@ public class AudioRouteManager {
     private BluetoothDevice connectedHeadset;
     private BroadcastReceiver broadcastReceiver;
     private BluetoothProfile.ServiceListener bluetoothProfileServiceListener;
-    private boolean bluetoothHeadsetConnected = false;
+    private boolean hasHeadsetMicrophone = false;
 
     public AudioRouteManager(ReactApplicationContext reactApplicationContext) {
         this.reactApplicationContext = reactApplicationContext;
@@ -122,27 +122,34 @@ public class AudioRouteManager {
                     }
                 } else if (action.equals(Intent.ACTION_HEADSET_PLUG)) {
 
-                    dispatchCurrentAudioRoute();
 
-                    /*
                     //0 for unplugged, 1 for plugged.
                     int state = intent.getIntExtra("state", -1);
 
                     // - 1 if headset has a microphone, 0 otherwise, 1 mean h2w
-                    int microPhone = intent.getIntExtra("microphone", -1);
+                    int microphone = intent.getIntExtra("microphone", -1);
 
                     switch (state)
                     {
                         case 0:
-                            Log.i(TAG, "Headset is unplugged");
+                            //headset disconnected
+                            hasHeadsetMicrophone = false;
                             break;
                         case 1:
-                            Log.i(TAG, "Headset is plugged");
+                            //headset connected
+                            if(microphone == 1) {
+                                hasHeadsetMicrophone = true;
+                            } else {
+                                hasHeadsetMicrophone = false;
+                            }
                             break;
                         default:
-                            Log.i(TAG, "I have no idea what the headset state is");
+                            hasHeadsetMicrophone = false;
+                            break;
                     }
-                    */
+
+                    dispatchCurrentAudioRoute();
+
                 }
             }
         };
@@ -183,20 +190,25 @@ public class AudioRouteManager {
 
     public void dispatchCurrentAudioRoute() {
 
-        if(isWiredHeadsetOn()) {
-            //TODO: Check if headphone has mic
+        if (BluetoothHeadsetUtils.isConnected()) {
             WritableMap params = Arguments.createMap();
-            params.putString("input", "Headphones");
-            params.putString("output", "Headphones");
+            params.putString("input", "BluetoothHFP");
+            params.putString("output", "BluetoothHFP");
 
             reactApplicationContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("AudioSessionRouteChanged", params);
+        } else if (isWiredHeadsetOn()) {
 
-        } else if (BluetoothHeadsetUtils.isConnected()) {
             WritableMap params = Arguments.createMap();
-            params.putString("input", "BluetoothHFP");
-            params.putString("output", "BluetoothHFP");
+
+            String input = "Headphones";
+            if (hasHeadsetMicrophone == false) {
+                input = "MicrophoneBuiltIn";
+            }
+
+            params.putString("input", input);
+            params.putString("output", "Headphones");
 
             reactApplicationContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)

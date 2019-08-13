@@ -1,10 +1,16 @@
 package com.ambifi.audio.session;
 
+import android.app.Activity;
 import android.util.Log;
 
 import com.facebook.react.bridge.LifecycleEventListener;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class RNAudioSessionModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
@@ -16,10 +22,25 @@ public class RNAudioSessionModule extends ReactContextBaseJavaModule implements 
         super(reactApplicationContext);
         reactApplicationContext.addLifecycleEventListener(this);
         this.audioRouteManager = new AudioRouteManager(reactApplicationContext);
-
-
     }
 
+    @ReactMethod
+    public void init(Promise promise) {
+        Activity activity = this.getCurrentActivity();
+        final Promise finalPromise = promise;
+        if (activity == null) {
+            Log.i(TAG, "Current activity is null, attempt RNAudioSessionModule re-initialize in 50 milliseconds ...");
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    init(finalPromise);
+                }
+            }, 50);
+            return;
+        }
+        this.audioRouteManager.dispatchCurrentAudioRoute();
+    }
     @Override
     public void onHostResume() {
         Log.i(TAG, "Host resume");
