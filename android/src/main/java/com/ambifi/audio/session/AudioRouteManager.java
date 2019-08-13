@@ -188,8 +188,27 @@ public class AudioRouteManager {
         return isWiredHeadsetOn;
     }
 
+    public boolean isWiredHeadphonesOn() {
+        boolean isWiredHeadphonesOn = false;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            AudioDeviceInfo[] mAudioDeviceInfos = localAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+
+            for (int i = 0; i < mAudioDeviceInfos.length; i++) {
+                if (mAudioDeviceInfos[i].getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES) {
+                    isWiredHeadphonesOn = true;
+                }
+            }
+        } else {
+            isWiredHeadphonesOn = localAudioManager.isWiredHeadsetOn();
+        }
+
+        return isWiredHeadphonesOn;
+    }
+
     public void dispatchCurrentAudioRoute() {
 
+        //bluetooth takes priority over headset
         if (BluetoothHeadsetUtils.isConnected()) {
             WritableMap params = Arguments.createMap();
             params.putString("input", "BluetoothHFP");
@@ -198,7 +217,7 @@ public class AudioRouteManager {
             reactApplicationContext
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("AudioSessionRouteChanged", params);
-        } else if (isWiredHeadsetOn()) {
+        } else if (isWiredHeadsetOn() || isWiredHeadphonesOn()) {
 
             WritableMap params = Arguments.createMap();
 
