@@ -238,7 +238,7 @@ public class AudioRouteManager {
             if(localAudioManager.isSpeakerphoneOn()) {
                 output = "Speaker";
             } else {
-                output = "Phone";
+                output = android.os.Build.MODEL;
             }
             WritableMap params = Arguments.createMap();
             params.putString("input", "MicrophoneBuiltIn");
