@@ -53,7 +53,13 @@ const create = () => {
 
 	const noAndroid = () => {
 		return new Promise((resolve, reject) => {
-			resolve("AudioSession is not supported on Android.")
+			resolve("Not supported on Android.")
+		})
+	}
+
+	const noIos = () => {
+		return new Promise((resolve, reject) => {
+			resolve("AudioSession is not supported on IOS.")
 		})
 	}
 
@@ -732,6 +738,21 @@ const create = () => {
 			return noAndroid()
 		}
 	}
+
+	const resetAudio = () => {
+		if (IS_IOS) {
+			return noIos();
+		} else {
+			return new Promise((resolve, reject) => {
+				RNAudioSession.resetAudio().then(() => {
+					resolve({});
+				}).catch((err) => {
+					reject(err);
+				})
+			})
+		}
+	}
+
 
 	return {
 		init,

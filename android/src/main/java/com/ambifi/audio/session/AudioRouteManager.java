@@ -68,15 +68,15 @@ public class AudioRouteManager {
 
                         if(bluetoothHeadset.startVoiceRecognition(connectedHeadset)) {
                             Log.i(TAG,"Bluetooth headset connected and audio started");
-                            dispatchCurrentAudioRoute();
                         } else {
                             Log.i(TAG,"Bluetooth headset connected, unable to start audio");
-                            dispatchCurrentAudioRoute();
                         }
-                        localAudioManager.setBluetoothScoOn(true);
-                        localAudioManager.startBluetoothSco();
                     }
                 }
+
+                dispatchCurrentAudioRoute();
+                localAudioManager.setBluetoothScoOn(true);
+                localAudioManager.startBluetoothSco();
             }
 
             @Override
@@ -238,7 +238,7 @@ public class AudioRouteManager {
             if(localAudioManager.isSpeakerphoneOn()) {
                 output = "Speaker";
             } else {
-                output = android.os.Build.MODEL;
+                output = Build.MODEL;
             }
             WritableMap params = Arguments.createMap();
             params.putString("input", "MicrophoneBuiltIn");
@@ -248,5 +248,13 @@ public class AudioRouteManager {
                     .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                     .emit("AudioSessionRouteChanged", params);
         }
+    }
+
+    public void resetAudio() {
+        localAudioManager.setBluetoothScoOn(false);
+        localAudioManager.stopBluetoothSco();
+        localAudioManager.setSpeakerphoneOn(false);
+        localAudioManager.setMicrophoneMute(false);
+        localAudioManager.setMode(AudioManager.MODE_NORMAL);
     }
 }

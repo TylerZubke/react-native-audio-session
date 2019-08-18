@@ -41,6 +41,12 @@ public class RNAudioSessionModule extends ReactContextBaseJavaModule implements 
         }
         this.audioRouteManager.dispatchCurrentAudioRoute();
     }
+
+    @ReactMethod
+    public void resetAudio(Promise promise) {
+        audioRouteManager.resetAudio();
+    }
+
     @Override
     public void onHostResume() {
         Log.i(TAG, "Host resume");
