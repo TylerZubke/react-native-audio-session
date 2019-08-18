@@ -238,7 +238,7 @@ public class AudioRouteManager {
             if(localAudioManager.isSpeakerphoneOn()) {
                 output = "Speaker";
             } else {
-                output = Build.MODEL;
+                output = android.os.Build.MODEL;
             }
             WritableMap params = Arguments.createMap();
             params.putString("input", "MicrophoneBuiltIn");
@@ -251,8 +251,10 @@ public class AudioRouteManager {
     }
 
     public void resetAudio() {
-        localAudioManager.setBluetoothScoOn(false);
-        localAudioManager.stopBluetoothSco();
+        if(localAudioManager.isBluetoothScoOn()) {
+            localAudioManager.setBluetoothScoOn(false);
+            localAudioManager.stopBluetoothSco();
+        }
         localAudioManager.setSpeakerphoneOn(false);
         localAudioManager.setMicrophoneMute(false);
         localAudioManager.setMode(AudioManager.MODE_NORMAL);
