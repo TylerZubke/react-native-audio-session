@@ -802,7 +802,8 @@ const create = () => {
 		setPreferredSampleRate,
 		IOBufferDuration,
 		preferredIOBufferDuration,
-		setPreferredIOBufferDuration
+		setPreferredIOBufferDuration,
+		resetAudio
 	}
 }
 
