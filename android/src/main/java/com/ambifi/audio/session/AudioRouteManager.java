@@ -98,9 +98,7 @@ public class AudioRouteManager {
                 String action = intent.getAction();
                 Log.i(TAG,"Audio broadcast action: " + action);
 
-                if(action.equals(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED) ||
-                        action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED) ||
-                        action.equals(BluetoothDevice.ACTION_ACL_CONNECTED)) {
+                if(action.equals(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)) {
 
                     int bluetoothHeadsetState = intent.getIntExtra(BluetoothHeadset.EXTRA_STATE,
                             BluetoothHeadset.STATE_DISCONNECTED);
