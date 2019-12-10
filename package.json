@@ -1,5 +1,5 @@
 {
-  "name": "@ambifi/react-native-audio-session",
+  "name": "@cbcnewmedia/react-native-audio-session",
   "version": "0.0.4",
   "description": "React Native module for handling the AVAudioSession instance on iOS.",
   "main": "index.js",
