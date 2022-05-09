@@ -1,11 +1,14 @@
 
 buildscript {
     repositories {
-        jcenter()
+        mavenLocal()
+        mavenCentral()
+        google()
+        maven { url "https://repo1.maven.org/maven2" }
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.+'
+        classpath 'com.android.tools.build:gradle:2.3.+'
     }
 }
 
@@ -28,7 +31,9 @@ android {
 
 repositories {
     mavenLocal()
-    jcenter()
+    mavenCentral()
+    google()
+    maven { url "https://repo1.maven.org/maven2" }
 
     flatDir {
         dirs 'aars'
